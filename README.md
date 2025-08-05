@@ -1,38 +1,163 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/mzlsx7b3)
-
-# Etapa 3: Persistência de Dados com PostgreSQL e Knex.js 
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/pktpEP6V)
+# Etapa 2: API para o Departamento de Polícia
 
 ## 🧩 Contexto
 
-O Departamento de Polícia está avançando na modernização de seus sistemas. Após a criação da API REST (Etapa 2), que armazenava dados em memória, agora chegou o momento de dar um passo importante rumo à persistência real.  
-A partir desta etapa, todos os registros de **agentes** e **casos policiais** devem ser armazenados em um **banco de dados PostgreSQL**.
+A Polícia está modernizando seus sistemas e criou um novo serviço digital para rastrear **casos e agentes da corporação**. 
 
-Sua missão será **migrar a API existente**, que atualmente utiliza arrays, para uma solução robusta e escalável, utilizando **Knex.js** como Query Builder, **migrations** para versionamento de esquemas e **seeds** para inserir dados iniciais.
+Você foi convocado para desenvolver a **primeira versão da API REST**, que permitirá aos investigadores cadastrar, consultar e atualizar informações — tudo operando em um servidor **Node.js com Express**.
 
 ---
 
 ## 🎯 Objetivo
 
-Refatorar a API de gerenciamento de agentes e casos policiais para utilizar um **banco de dados PostgreSQL**, com suporte a migrations e seeds, mantendo todas as funcionalidades REST da etapa anterior.
+Construir uma **API RESTful** que permita o gerenciamento de **agentes e casos policiais fictícios**, com validações, tratamento de erros e dados armazenados **em memória** (utilizando arrays).
 
+--- 
+
+## Como Iniciar o Servidor
+
+Siga os passos abaixo para configurar e rodar o projeto em sua máquina local.
+
+**1. Crie o projeto seguindo a estrutura**
+
+Clone o repositório e execute o seguinte comando: 
+
+```npm init -y```
+
+Depois, crie os repositórios e arquivos e diretórios seguindo a estrutura de exemplo (está descrita abaixo).
+
+**2. Instale as Dependências**
+
+Navegue até o diretório raiz do projeto pelo terminal e instale o Express.js:
+
+```bash
+npm install express
+```
+Se você estiver recebendo os dados do formulário via POST, precisará de um middleware para interpretar o corpo da requisição. O Express já inclui o express.urlencoded.
+
+**Observação:** Nessa etapa, além das dependências necessárias, você está livre para usar as que preferir
+
+**3. Crie o servidor**
+
+Insira este código no arquivo server.js
+
+```javascript
+const express = require('express')
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+
+app.listen(PORT, () => {
+    console.log(`Servidor do Departamento de Polícia rodando em localhost:${PORT}`);
+});
+```
+
+**4. Inicie o Servidor**
+
+Execute o seguinte comando no terminal:
+
+```bash
+npm start
+```
+
+O servidor será iniciado, e você deverá ver uma mensagem no console, por exemplo:
+
+Servidor do Departamento de Polícia rodando em http://localhost:3000
+
+
+## 💡 Orientações Gerais para a atividade
+### Controladores
+Nessa etapa vamos modularizar nosso código e utilizar os controladores para servir as rotas. Os dois arquivos de controladores devem receber os nomes `agentesController.js` e `casosController.js` e devem residir na pasta `/controllers` 
+Um exemplo de como um controller deve se parecer:
+```javascript
+const casosRepository = require("../repositories/casosRepository")
+function getAllCasos(req, res) {
+
+        const casos = casosRepository.findAll()
+        res.json(casos)
+}
+
+module.exports = {
+   getAllCasos
+}
+```
+### Rotas
+As rotas nessa etapa devem ser definidas nos arquivos `agentesRoutes.js` e `casosRoutes.js` que por sua vez deve estar dentro da pasta `/routes`, porém dessa vez utilizaremos o Router do express, segue um exemplo de como utilizá-lo para definir uma rota GET no `agentesRoutes.js`:
+```javascript
+const express = require('express')
+const router = express.Router();
+const agentesController = require('../controllers/agentesController');
+
+// define a rota para /agentes usando o método GET
+router.get('/agentes', agentesController.seuMetodo)
+
+module.exports = router
+```
+Agora adicionaremos o `agentesRouter` como middleware no arquivo principal da aplicação:
+
+```javascript
+//server.js 
+
+const express = require('express');
+const app = express();
+const agentesRouter = require("./routes/agentesRouter")
+
+app.use(agentesRouter);
+
+app.listen(PORT, () => {
+    console.log(`Servidor do Departamento de Polícia rodando em http://localhost:${PORT} em modo de desenvolvimento`);
+}); 
+ ```
+ Pronto! Agora é só implementar as demais rotas da sua aplicação!
+
+
+## Repositories
+Os repositories são a nossa camada de *Data-Acess* e devem estar em uma pasta chamada `/repositories`. Serão nesses arquivos que você deverá definir o *array* para cada recurso para simularmos a persistência de dados nessa etapa. Os arquivos `casosRepository.js`e `agentesRepository.js`devem ser responsáveis **apenas** por manipular os dados do array, adicionando, removendo, buscando e atualizando objetos.
+Um exemplo de como um repository deve se parecer:
+```javascript
+const casos = [
+    {
+        id: "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
+        titulo: "homicidio",
+        descricao: "Disparos foram reportados às 22:33 do dia 10/07/2007 na região do bairro União, resultando na morte da vítima, um homem de 45 anos.",
+        status: "aberto",
+        agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1" 
+    
+    },
+    //Demais objetos
+]
+
+function findAll() {
+    return casos
+}
+module.exports = {
+    findAll
+}
+
+```
+
+
+
+**route** --> **controller** --> **repository**
+
+## Utils (opcional)
+Nessa pasta você pode inserir funções para tratamento de erros e demais utility functions que preferir
+
+### Teste da API 
+Recomendamos que você teste a sua API com as ferramentas *Postman* e *Insomnia*. Ambos simulam um cliente e mandam requisições para sua aplicação de maneira que testá-la se torne uma atividade mais visual e simples. Seguem links úteis para a instalação e utilização de ambos
+- Site oficial do Postman: https://www.postman.com/
+- Site oficial do Insomnia: https://insomnia.rest/
+ 
 ---
-
-## **O que deve ser feito**
 # 📁  Estrutura dos Diretórios (pastas) 
 ```
 📦 SEU-REPOSITÓRIO
 │
 ├── package.json
 ├── server.js
-├── .env
-├── knexfile.js
-├── INSTRUCTIONS.md
-
-│
-├── db/
-│ ├── migrations/
-│ ├── seeds/
-│ └── db.js
+├── .env (opcional para centralizar configurações)
 │
 ├── routes/
 │ ├── agentesRoutes.js
@@ -46,150 +171,160 @@ Refatorar a API de gerenciamento de agentes e casos policiais para utilizar um *
 │ ├── agentesRepository.js
 │ └── casosRepository.js
 │
+│
+├── docs/
+│ └── swagger.js
+│
 ├── utils/
 │ └── errorHandler.js
 │
 
   
 ```
-
-### 1. Configurar o banco de dados PostgreSQL com Docker
-- Crie um arquivo .env na raíz do projeto para armazenar as seguintes variáveis de ambiente do nosso banco de dados:
-
-```
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=policia_db
-```
-**OBSERVAÇÃO: o uso de valores diferentes resultará em falhas nos testes**
-
-- Crie um arquivo `docker-compose.yml` na raiz do projeto para subir um container do PostgreSQL com um **volume persistente**, utilizando as váriaveis de ambiente para inserir dados sensíveis. Tenha certeza de seu container está rodando quando for desenvolver sua aplicação
-  
-### 2. Instalar o knex e criar o arquivo **`knexfile.js`**
-- Primeiro instale o knex localmente com `npm install knex pg`
-- Rode `npm install dotenv` para utilizarmos variáveis do arquivo .env
-- Agora, na **raiz do projeto**, devemos criar o knexfile.js com o comando `npx knex init`. Ele cria um arquivo de configurações de conexão com o PostgreSQL para diversos ambientes. Criaremos uma configuração de desenvolvimento para nos conectarmos ao banco que criamos e adicionaremos caminhos para a criação de migrations e seeds, edite esse arquivo para deixá-lo assim:
-
-```js
-// Update with your config settings.
-
-/**
- * @type { Object.<string, import("knex").Knex.Config> }
- */
-
-require('dotenv').config();
-
-module.exports = {
-
-  development: {
-    client: 'pg',
-    connection: {
-      host: '127.0.0.1',
-      port: 5432,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-    },
-    migrations: {
-        directory: './db/migrations',
-      },
-    seeds: {
-        directory: './db/seeds',
-      },
-  },
-  ci: {
-    client: 'pg',
-    connection: {
-      host: 'postgres', // Using the service name as the host
-      port: 5432,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-    },
-    migrations: {
-      directory: './db/migrations',
-    },
-    seeds: {
-      directory: './db/seeds',
-    },
-  }
-
-};
-
-```
-
-### 3. Criar a pasta `db/`
-Dentro da pasta `db/`, você deve criar os seguinte arquivo:
-
-#### **`db.js`**
-Arquivo responsável por criar e exportar a instância do Knex:
-
-```js
-const config = require("../knexfile")
-const knex = require("knex")
-
-const db = knex(config.development)
-
-module.exports = db
-```
-
+- Não delete a pasta `.github, é por lá que o **Autograder** reside.
 ---
+# 📙 Recurso de casos policiais: `/casos`
 
-### 4. Criar as Migrations
-- Use o Knex CLI para gerar as migrations com o seguinte nome (Tem certeza de que o diretório que você se encontra no terminal é a raiz do projeto, do contrário você terá uma pasta `db/` duplicada):
+Gerencia os **registros de crimes nos arquivos do departamento de polícia**.
 
-```bash
-npx knex migrate:make solution_migrations
+### Métodos HTTP que deverão ser implementados:
+- `GET /casos` → Lista todos os casos registrados. 
+- `GET /casos/:id` → Retorna os detalhes de um caso específico.
+- `POST /casos` → Cria um novo caso com os seguintes campos:
+- `PUT /casos/:id` → Atualiza os dados de um caso por completo.
+- `PATCH /casos/:id` → Atualiza os dados de um caso parcialmente.
+- `DELETE /casos/:id` → Remove um caso do sistema.
+
+
+### Estrutura de um caso:
+  - `id`: string (UUID) **obrigatório**.
+  - `titulo`: string **obrigatório**.
+  - `descricao`: string **obrigatório**.
+  - `status`: deve ser `"aberto"` ou `"solucionado"` **obrigatório**.
+  - `agente_id`: string (UUID), id do agente responsável **obrigatório**
+Exemplo:
+```
+
+{
+    "id": "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
+    "titulo": "homicidio",
+    "descricao": "Disparos foram reportados às 22:33 do dia 10/07/2007 na região do bairro União, resultando na morte da vítima, um homem de 45 anos.",
+    "status": "aberto",
+    "agente_id": "401bccf5-cf9e-489d-8412-446cd169a0f1" 
+
+}
 
 ```
 
-- As tabelas devem ter as seguintes colunas:
-  - `agentes`: `id`, `nome (string)`, `dataDeIncorporacao (date)`, `cargo (string)`
-  - `casos`: `id`, `titulo (string)`, `descricao (string)`, `status (aberto/solucionado)`, `agente_id` com **foreign key** para `agentes.id`.
+### Regras e Validações:
 
-**IMPORTANTE! Não utilizaremos mais o uuid, pois o PostgreSQL lida com a lógica de indexação e incrementa automaticamente. Jamais explicite o id dentro de um payload que será guardado no banco de dados, pois isso pode causar comportamento indesejado**
-- Aplique as migrations com:
-```bash
-npx knex migrate:latest
+- `status` deve ser `"aberto"` ou `"solucionado"`.
+- IDs inexistentes devem retornar status **404**.
+- Dados mal formatados devem retornar status **400**.
+- Status HTTP esperados: **201**, **200**, **204**, **400**, **404**.
+
+
+## Bônus 🌟
+
+### Endpoints
+- `GET /casos?agente_id=uuid` → Lista todos os casos atribuídos à um agente específico.
+- `GET /casos/:caso_id/agente` → Retorna os dados completos do agente responsável por um caso específico.
+- `GET /casos?status=aberto` → Lista todos os casos em aberto.
+ - `GET /casos/search?q=homicídio` → Deve retornar todos os casos em que a palavra da query string aparece no **titulo** e/ou **descricao**, ou seja, uma pesquisa full-text
+
+
+### Corpo de Resposta de Erro (Response Body)
+Ganhe pontuação bônus por implementar um corpo de resposta personalizado para um payload com argumentos inválidos! O JSON abaixo exemplifica um corpo de resposta para uma requisição em que o campo `status` é inválido.
+```json
+{
+  "status": 400,
+  "message": "Parâmetros inválidos"
+  "errors": [
+    "status": "O campo 'status' pode ser somente 'aberto' ou 'solucionado' "
+  ]
+}
+
 ```
----
 
-### 5. Criar Seeds
-- Crie seeds para popular as tabelas com pelo menos 2 agentes e 2 casos. Crie um arquivo para cada tabela e siga a nomeclatura que definimos abaixo. (Tem certeza de que o diretório que você se encontra no terminal é a raiz do projeto, do contrário você terá uma pasta `db/` duplicada):
+# 📙 Recurso de agentes policiais: `/agentes`
 
-```bash
-npx knex seed:make agentes
-npx knex seed:make casos
+Gerencia os **agentes da polícia**.
 
+### Métodos HTTP que deverão ser implementados::
+
+- `GET /agentes` → Lista todos os agentes.
+- `GET /agentes/:id` → Retorna um agente específico.
+- `POST /agentes` → Cadastra um novo agente com:
+- `PUT /agentes/:id` → Atualiza os dados do agente por completo.
+- `PATCH /agentes/:id` → Atualiza os dados do agente parcialmente.
+- `DELETE /agentes/:id` → Remove o agente.
+
+
+#### Estrutura de um agente:
+  - `id`: string (UUID) **obrigatório**.
+  - `nome`: string **obrigatório**.
+  - `dataDeIncorporacao`: string , no formato `YYYY-MM-DD`**obrigatória**.
+  - `cargo`: ("inspetor", "delegado", etc.) **obrigatório**.
+
+Exemplo:
+  ```
+
+{
+    "id": "401bccf5-cf9e-489d-8412-446cd169a0f1",
+    "nome": "Rommel Carneiro",
+    "dataDeIncorporacao": "1992/10/04",
+    "cargo": "delegado"
+
+}
 
 ```
-- Execute as seeds com:
-```bash
-npx knex seed:run
+
+### Regras e Validações:
+
+- IDs inválidos devem retornar status **404**.
+- Dados mal formatados devem retornar status **400**.
+- IDs inexistentes devem retornar status **404**.
+- Status HTTP esperados: **201**, **200**, **204**, **400**, **404**.
+
+##  Bônus 🌟
+### Endpoints
+- `GET /agentes?cargo=inspetor` → Lista todos os agentes baseado no cargo ("inspetor" ou "delegado").
+- `GET /agentes?sort=dataDeIncorporacao` ou `sort=-dataDeIncorporacao` → Lista os agentes em ordem crescente ou decrescente de data incorporação 
+
+`sort=dataDeIncorporacao` → ordem crescente (mais antigo primeiro)
+
+`sort=-dataDeIncorporacao` → ordem decrescente (mais recente primeiro)
+
+### Corpo de Resposta de Erro (Response Body)
+Ganhe pontuação bônus por implementar um corpo de resposta personalizado para um payload com argumentos inválidos! O JSON abaixo exemplifica um corpo de resposta para uma requisição em que o campo `dataDeIncorporacao` não seguiu a formatação adequada.
+```json
+{
+  "status": 400,
+  "message": "Parâmetros inválidos"
+  "errors": [
+    "dataDeIncorporacao": "Campo dataDeIncorporacao deve seguir a formatação 'YYYY-MM-DD' "
+  ]
+}
+
 ```
-
-**OBSERVAÇÃO: Siga o nome do migration à risca para evitar falhas desnecessárias nos testes**
-
----
-
-### 6. Refatorar os Repositories
-- Substituir os arrays atuais por queries usando **Knex.js** (`select`, `insert`, `update`, `delete`).
-
----
-
-### 7. Manter Rotas e Controladores
-- Todos os endpoints de **/casos** e **/agentes** devem continuar funcionando com as mesmas regras e validações.
-
----
-
-### 8. Documentar de maneira simples em um arquivo INSTRUCTIONS.md
-Crie esse arquivo e adicione instruções claras para:
-- Subir o banco com Docker
-- Executar migrations
-- Rodar seeds
 
 
 ---
+# 📝 Orientações gerais para respostas
+### Requisições GET
+- As requisições do tipo `GET` devem retornar o status code **200 OK✅** e o objeto ou array de objetos do recurso.
+### Requisições POST, PUT e PATCH
+- As requisições do tipo `PUT` e `PATCH` devem retornar o status code **200 OK✅** e o objeto atualizado!
+- As requisições do tipo `POST` devem retornar o status code **201 CREATED✅** e o objeto criado!
+### Requisições DELETE
+- As requisições do tipo `DELETE`devem retornar o status code **204 NO CONTENT✅** e não devem possuir corpo de resposta.
 
-## **Bônus 🌟**
-- Implementar endpoint `/agentes/:id/casos` para listar todos os casos atribuídos a um agente.
+---
+# 📃 Documentação da API com o Swagger e padrão OAS (OpenAPI Specification)
+- Você deve documentar a API que criou seguindo os padrões OAS e utilizando a ferramenta *Swagger*. Isso será feito dentro da própria aplicação com a ajuda das bibliotecas `swagger-jsdoc`e `swagger-ui-express`. **Sua documentação deve estar disponível no endpoint `/docs`** . 
+- Sua documentação deve seguir o padrão OAS, o qual o *Swagger* tem suporte nativo
+- Fique à vontade para escolher entre um documento de definição em formato **JSON** ou **YAML**.
+- Teremos um Hands-On sobre como utilizar a ferramenta.
+
+---
+### Desejamos êxito a todos nesta etapa e que todos tenham resultados à altura do desafio. 🎯

@@ -18,8 +18,8 @@ function findById(id) {
 }
 
 function newCaso(caso) {
-  const newCaso = casos.push(caso);
-  return newCaso;
+  casos.push(caso);
+  return caso;
 }
 
 function attCaso(id, attCaso) {
@@ -49,7 +49,7 @@ function removeCaso(id) {
     return undefined;
   }
 
-  const casoRemovido = casos.splice(casoIndex, 1);
+  const casoRemovido = casos.splice(casoIndex, 1)[0];
   return casoRemovido;
 }
 

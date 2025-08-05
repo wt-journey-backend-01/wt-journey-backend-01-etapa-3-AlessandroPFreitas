@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/wt-journey-backend-01/wt-journey-backend-01-etapa-3-AlessandroPFreitas#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
