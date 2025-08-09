@@ -1,5 +1,5 @@
 const agentesRepository = require("../repositories/agentesRepository");
-const { isValidUUID, generateUUID } = require("../utils/validation");
+
 
 function getAllAgentes(req, res) {
   try {
@@ -45,15 +45,6 @@ function getAgenteId(req, res) {
   try {
     const { id } = req.params;
 
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
 
     const agenteId = agentesRepository.findId(id);
 
@@ -99,7 +90,6 @@ function postAgente(req, res) {
     }
 
     const agente = {
-      id: generateUUID(),
       nome,
       dataDeIncorporacao,
       cargo,
@@ -122,15 +112,6 @@ function putAgente(req, res) {
     const { nome, dataDeIncorporacao, cargo } = req.body;
     const errors = {};
 
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
 
     if (!nome) errors.nome = "O campo 'nome' é obrigatório";
     if (!dataDeIncorporacao) {
@@ -183,15 +164,6 @@ function patchAgente(req, res) {
     const { nome, dataDeIncorporacao, cargo } = req.body;
     const errors = {};
 
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
 
     const agente = {};
 
@@ -247,16 +219,6 @@ function patchAgente(req, res) {
 function deleteAgente(req, res) {
   try {
     const { id } = req.params;
-
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
 
     const agente = agentesRepository.removeAgente(id);
     if (!agente) {

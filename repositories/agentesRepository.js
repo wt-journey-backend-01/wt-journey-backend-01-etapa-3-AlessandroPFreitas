@@ -1,57 +1,35 @@
-const agentes = [
-  {
-    id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
-    nome: "Rommel Carneiro",
-    dataDeIncorporacao: "1992-10-04",
-    cargo: "delegado",
-  },
-];
+const knex = require("../db/db");
 
-function findAll() {
-  return agentes;
+async function findAll() {
+  return await knex("agentes").select("*");
 }
 
-function findId(id) {
-  const agenteId = agentes.find((agente) => agente.id === id);
-  return agenteId;
+async function findId(id) {
+  return await knex("agentes").where({ id }).first();
 }
 
-function createAgente(addAgente) {
-  agentes.push(addAgente);
-  return addAgente;
+async function createAgente(agente) {
+  await knex("agentes").insert(agente);
+  return agente;
 }
 
-function attAgente(id, updateAgente) {
-  const agenteIndex = agentes.findIndex((agente) => agente.id === id);
-
-  if (agenteIndex === -1) {
-    return undefined;
-  }
-
-  agentes[agenteIndex] = { ...agentes[agenteIndex], ...updateAgente };
-  return agentes[agenteIndex];
+async function attAgente(id, updateAgente) {
+  const count = await knex("agentes").where({ id }).update(updateAgente);
+  if (count === 0) return undefined;
+  return findId(id);
 }
 
-function partialAgente(id, updateAgente) {
-  const agenteIndex = agentes.findIndex((agente) => agente.id === id);
-
-  if (agenteIndex === -1) {
-    return undefined;
-  }
-
-  agentes[agenteIndex] = { ...agentes[agenteIndex], ...updateAgente };
-  return agentes[agenteIndex];
+async function partialAgente(id, updateAgente) {
+  const rollBacks = await knex("agentes").where({ id }).update(updateAgente);
+  return rollBacks ? findId(id) : undefined;
 }
 
-function removeAgente(id) {
-  const agenteIndex = agentes.findIndex((agente) => agente.id === id);
+async function removeAgente(id) {
+  const agente = await findId(id);
+  if (!agente) return undefined;
 
-  if (agenteIndex === -1) {
-    return undefined;
-  }
-
-  const agenteDeleted = agentes.splice(agenteIndex, 1);
-  return agenteDeleted;
+  await knex("agentes").where({ id }).del();
+  return true;
 }
 
 module.exports = {
@@ -60,5 +38,5 @@ module.exports = {
   createAgente,
   attAgente,
   partialAgente,
-  removeAgente
+  removeAgente,
 };

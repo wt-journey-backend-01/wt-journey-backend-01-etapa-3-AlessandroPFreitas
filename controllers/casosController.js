@@ -1,20 +1,12 @@
 const casosRepository = require("../repositories/casosRepository");
 const agentesRepository = require("../repositories/agentesRepository");
-const { isValidUUID, generateUUID } = require("../utils/validation");
+
 
 function getAllCasos(req, res) {
   try {
     const { agente_id, status, q } = req.query;
     let casos = casosRepository.findAll();
     if (agente_id) {
-      if (!isValidUUID(agente_id))
-        return res.status(400).json({
-          status: 400,
-          message: "Parâmetros inválidos",
-          errors: {
-            id: "O campo 'id' deve ser um UUID válido",
-          },
-        });
       const agente = agentesRepository.findId(agente_id);
       if (!agente) {
         return res.status(404).json({
@@ -81,15 +73,6 @@ function getAllCasos(req, res) {
 function getCasoId(req, res) {
   try {
     const id = req.params.id;
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
     const caso = casosRepository.findById(id);
     if (!caso) {
       return res.status(404).json({
@@ -133,9 +116,7 @@ function postCaso(req, res) {
     }
     if (!agente_id) {
       errors.agente_id = "O campo 'agente_id' é obrigatório";
-    } else if (!isValidUUID(agente_id)) {
-      errors.agente_id = "O campo 'agente_id' deve ser um UUID válido";
-    }
+    } 
 
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({
@@ -154,7 +135,6 @@ function postCaso(req, res) {
     }
 
     const caso = {
-      id: generateUUID(),
       titulo,
       descricao,
       status,
@@ -177,16 +157,6 @@ function putCaso(req, res) {
     const { titulo, descricao, status, agente_id } = req.body;
     const errors = {};
 
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
-
     if (!titulo) errors.titulo = "O campo 'titulo' é obrigatório";
     if (!descricao) errors.descricao = "O campo 'descricao' é obrigatório";
     if (!status) {
@@ -197,9 +167,7 @@ function putCaso(req, res) {
     }
     if (!agente_id) {
       errors.agente_id = "O campo 'agente_id' é obrigatório";
-    } else if (!isValidUUID(agente_id)) {
-      errors.agente_id = "O campo 'agente_id' deve ser um UUID válido";
-    }
+    } 
 
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({
@@ -248,22 +216,12 @@ function patchCaso(req, res) {
     const { titulo, descricao, status, agente_id } = req.body;
     const errors = {};
 
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
-
     if (status && status !== "aberto" && status !== "solucionado") {
       errors.status =
         "O campo 'status' pode ser somente 'aberto' ou 'solucionado'";
     }
 
-    if (agente_id && !isValidUUID(agente_id)) {
+    if (agente_id) {
       errors.agente_id = "O campo 'agente_id' deve ser um UUID válido";
     }
 
@@ -320,15 +278,6 @@ function patchCaso(req, res) {
 function deleteCaso(req, res) {
   try {
     const { id } = req.params;
-    if (!isValidUUID(id)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-          id: "O campo 'id' deve ser um UUID válido",
-        },
-      });
-    }
 
     const casoDeletado = casosRepository.removeCaso(id);
     if (!casoDeletado) {
