@@ -41,12 +41,12 @@ function getAllAgentes(req, res) {
   }
 }
 
-function getAgenteId(req, res) {
+async function getAgenteId(req, res) {
   try {
     const { id } = req.params;
 
 
-    const agenteId = agentesRepository.findId(id);
+    const agenteId = await agentesRepository.findId(id);
 
     if (!agenteId) {
       return res.status(404).json({
@@ -64,7 +64,7 @@ function getAgenteId(req, res) {
   }
 }
 
-function postAgente(req, res) {
+async function postAgente(req, res) {
   try {
     const { nome, dataDeIncorporacao, cargo } = req.body;
     const errors = {};
@@ -95,7 +95,7 @@ function postAgente(req, res) {
       cargo,
     };
 
-    agentesRepository.createAgente(agente);
+   await agentesRepository.createAgente(agente);
 
     res.status(201).json(agente);
   } catch (error) {
@@ -106,7 +106,7 @@ function postAgente(req, res) {
   }
 }
 
-function putAgente(req, res) {
+async function putAgente(req, res) {
   try {
     const { id } = req.params;
     const { nome, dataDeIncorporacao, cargo } = req.body;
@@ -140,7 +140,7 @@ function putAgente(req, res) {
       cargo,
     };
 
-    const updateAgente = agentesRepository.attAgente(id, agente);
+    const updateAgente = await agentesRepository.attAgente(id, agente);
 
     if (!updateAgente) {
       return res.status(404).json({
@@ -158,7 +158,7 @@ function putAgente(req, res) {
   }
 }
 
-function patchAgente(req, res) {
+ async function patchAgente(req, res) {
   try {
     const { id } = req.params;
     const { nome, dataDeIncorporacao, cargo } = req.body;
@@ -198,7 +198,7 @@ function patchAgente(req, res) {
       });
     }
 
-    const attAgente = agentesRepository.partialAgente(id, agente);
+    const attAgente = await agentesRepository.partialAgente(id, agente);
 
     if (!attAgente) {
       return res.status(404).json({
@@ -216,11 +216,11 @@ function patchAgente(req, res) {
   }
 }
 
-function deleteAgente(req, res) {
+async function deleteAgente(req, res) {
   try {
     const { id } = req.params;
 
-    const agente = agentesRepository.removeAgente(id);
+    const agente = await removeAgente(id);
     if (!agente) {
       return res.status(404).json({
         status: 404,

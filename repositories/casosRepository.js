@@ -1,56 +1,35 @@
-const casos = [
-  {
-    id: "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
-    titulo: "homicidio",
-    descricao:
-      "Disparos foram reportados às 22:33 do dia 10/07/2007 na região do bairro União, resultando na morte da vítima, um homem de 45 anos.",
-    status: "aberto",
-    agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
-  },
-];
+const knex = require("../db/db");
 
-function findAll() {
-  return casos;
+async function findAll() {
+  return await knex("casos").select("*");
 }
 
-function findById(id) {
-  return casos.find((caso) => caso.id === id);
+async function findById(id) {
+  return await knex("casos").where({ id }).first();
 }
 
-function newCaso(caso) {
-  casos.push(caso);
-  return caso;
+async function newCaso(caso) {
+  const [newId] = await knex("casos").insert(caso).returning("id");
+  return findById(newId);
 }
 
-function attCaso(id, attCaso) {
-  const casoIndex = casos.findIndex((caso) => caso.id === id);
-  if (casoIndex === -1) {
-    return undefined;
-  }
-  casos[casoIndex] = { ...casos[casoIndex], ...attCaso };
-
-  return casos[casoIndex];
+async function attCaso(id, updateCaso) {
+  const count = await knex("casos").where({ id }).update(updateCaso);
+  if (count === 0) return undefined;
+  return findById(id);
 }
 
-function partialCaso(id, attCaso) {
-  const casoIndex = casos.findIndex((caso) => caso.id === id);
-
-  if (casoIndex === -1) {
-    return undefined;
-  }
-
-  casos[casoIndex] = { ...casos[casoIndex], ...attCaso };
-  return casos[casoIndex];
+async function partialCaso(id, updateCaso) {
+  const count = await knex("casos").where({ id }).update(updateCaso);
+  if (count === 0) return undefined;
+  return findById(id);
 }
 
-function removeCaso(id) {
-  const casoIndex = casos.findIndex((caso) => caso.id === id);
-  if (casoIndex === -1) {
-    return undefined;
-  }
-
-  const casoRemovido = casos.splice(casoIndex, 1)[0];
-  return casoRemovido;
+async function removeCaso(id) {
+  const caso = await findById(id);
+  if (!caso) return undefined;
+  await knex("casos").where({ id }).del();
+  return true;
 }
 
 module.exports = {
@@ -59,5 +38,5 @@ module.exports = {
   newCaso,
   attCaso,
   partialCaso,
-  removeCaso
+  removeCaso,
 };

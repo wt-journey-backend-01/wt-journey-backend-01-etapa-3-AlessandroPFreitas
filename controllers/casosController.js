@@ -2,12 +2,12 @@ const casosRepository = require("../repositories/casosRepository");
 const agentesRepository = require("../repositories/agentesRepository");
 
 
-function getAllCasos(req, res) {
+async function getAllCasos(req, res) {
   try {
     const { agente_id, status, q } = req.query;
-    let casos = casosRepository.findAll();
+    let casos = await casosRepository.findAll();
     if (agente_id) {
-      const agente = agentesRepository.findId(agente_id);
+      const agente = await agentesRepository.findId(agente_id);
       if (!agente) {
         return res.status(404).json({
           status: 404,
@@ -70,10 +70,10 @@ function getAllCasos(req, res) {
   }
 }
 
-function getCasoId(req, res) {
+async function getCasoId(req, res) {
   try {
     const id = req.params.id;
-    const caso = casosRepository.findById(id);
+    const caso = await casosRepository.findById(id);
     if (!caso) {
       return res.status(404).json({
         status: 404,
@@ -81,7 +81,7 @@ function getCasoId(req, res) {
       });
     }
 
-    const agente = agentesRepository.findId(caso.agente_id);
+    const agente = await agentesRepository.findId(caso.agente_id);
     if (!agente) {
       return res.status(404).json({
         status: 404,
@@ -92,7 +92,7 @@ function getCasoId(req, res) {
       });
     }
 
-    res.status(200).json(...caso, agente);
+    res.status(200).json({...caso, agente});
   } catch (error) {
     res.status(500).json({
       status: 500,
@@ -101,7 +101,7 @@ function getCasoId(req, res) {
   }
 }
 
-function postCaso(req, res) {
+async function postCaso(req, res) {
   try {
     const { titulo, descricao, status, agente_id } = req.body;
     const errors = {};
@@ -126,7 +126,7 @@ function postCaso(req, res) {
       });
     }
 
-    const agente = agentesRepository.findId(agente_id);
+    const agente = await agentesRepository.findId(agente_id);
     if (!agente) {
       return res.status(404).json({
         status: 404,
@@ -140,7 +140,7 @@ function postCaso(req, res) {
       status,
       agente_id,
     };
-    casosRepository.newCaso(caso);
+  await casosRepository.newCaso(caso);
 
     res.status(201).json(caso);
   } catch (error) {
@@ -151,7 +151,7 @@ function postCaso(req, res) {
   }
 }
 
-function putCaso(req, res) {
+async function putCaso(req, res) {
   try {
     const { id } = req.params;
     const { titulo, descricao, status, agente_id } = req.body;
@@ -177,7 +177,7 @@ function putCaso(req, res) {
       });
     }
 
-    const agente = agentesRepository.findId(agente_id);
+    const agente = await agentesRepository.findId(agente_id);
     if (!agente) {
       return res.status(404).json({
         status: 404,
@@ -192,7 +192,7 @@ function putCaso(req, res) {
       agente_id,
     };
 
-    const casoAtt = casosRepository.attCaso(id, newCaso);
+    const casoAtt = await casosRepository.attCaso(id, newCaso);
 
     if (!casoAtt) {
       return res.status(404).json({
@@ -209,8 +209,8 @@ function putCaso(req, res) {
     });
   }
 }
-
-function patchCaso(req, res) {
+ 
+async function patchCaso(req, res) {
   try {
     const { id } = req.params;
     const { titulo, descricao, status, agente_id } = req.body;
@@ -219,10 +219,6 @@ function patchCaso(req, res) {
     if (status && status !== "aberto" && status !== "solucionado") {
       errors.status =
         "O campo 'status' pode ser somente 'aberto' ou 'solucionado'";
-    }
-
-    if (agente_id) {
-      errors.agente_id = "O campo 'agente_id' deve ser um UUID válido";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -234,7 +230,7 @@ function patchCaso(req, res) {
     }
 
     if (agente_id) {
-      const agente = agentesRepository.findId(agente_id);
+      const agente = await agentesRepository.findId(agente_id);
       if (!agente) {
         return res.status(404).json({
           status: 404,
@@ -257,7 +253,7 @@ function patchCaso(req, res) {
       });
     }
 
-    const casoAtualizado = casosRepository.partialCaso(id, dadosParaAtualizar);
+    const casoAtualizado = await casosRepository.partialCaso(id, dadosParaAtualizar);
 
     if (!casoAtualizado) {
       return res.status(404).json({
@@ -275,11 +271,11 @@ function patchCaso(req, res) {
   }
 }
 
-function deleteCaso(req, res) {
+async function deleteCaso(req, res) {
   try {
     const { id } = req.params;
 
-    const casoDeletado = casosRepository.removeCaso(id);
+    const casoDeletado = await casosRepository.removeCaso(id);
     if (!casoDeletado) {
       return res.status(404).json({
         status: 404,
