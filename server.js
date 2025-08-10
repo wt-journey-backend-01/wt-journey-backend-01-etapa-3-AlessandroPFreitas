@@ -7,8 +7,8 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
-app.use(agentesRouter);
-app.use(casosRouter);
+app.use('/agentes', agentesRouter);
+app.use('/casos', casosRouter);
 
 app.listen(PORT, () => {
   console.log(

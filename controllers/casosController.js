@@ -44,21 +44,22 @@ async function getAllCasos(req, res) {
 
     if (q) {
       const termo = q.trim().toLowerCase();
+
+      if (termo.length < 2) {
+        return res.status(400).json({
+          status: 400,
+          message: "Parâmetros inválidos",
+          errors: {
+            q: "O termo de busca deve ter pelo menos 2 caracteres!"
+          },
+        });
+      }
+
       casos = casos.filter(
         (caso) =>
           caso.titulo.toLowerCase().includes(termo) ||
           caso.descricao.toLowerCase().includes(termo)
       );
-
-      if(casos.length < 2 ){
-        return res.status(400).json({
-        status: 400,
-        message: "Parâmetros inválidos",
-        errors: {
-           q: "O termo de busca deve ter pelo menos 2 caracteres!"
-        },
-      })
-    }
     }
 
     res.status(200).json(casos);

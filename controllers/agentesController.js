@@ -1,10 +1,9 @@
 const agentesRepository = require("../repositories/agentesRepository");
 
-
-function getAllAgentes(req, res) {
+async function getAllAgentes(req, res) {
   try {
     const { cargo, sort } = req.query;
-    let agentes = agentesRepository.findAll();
+    let agentes = await agentesRepository.findAll();
 
     if (cargo) {
       agentes = agentes.filter((agente) => agente.cargo === cargo);
@@ -77,6 +76,13 @@ async function postAgente(req, res) {
       if (!dateRegex.test(dataDeIncorporacao)) {
         errors.dataDeIncorporacao =
           "Campo dataDeIncorporacao deve seguir a formatação 'YYYY-MM-DD'";
+      } else {
+        // Validar que não é data futura
+        const data = new Date(dataDeIncorporacao);
+        const hoje = new Date();
+        if (data > hoje) {
+          errors.dataDeIncorporacao = "A data de incorporação não pode ser no futuro";
+        }
       }
     }
     if (!cargo) errors.cargo = "O campo 'cargo' é obrigatório";
@@ -112,7 +118,6 @@ async function putAgente(req, res) {
     const { nome, dataDeIncorporacao, cargo } = req.body;
     const errors = {};
 
-
     if (!nome) errors.nome = "O campo 'nome' é obrigatório";
     if (!dataDeIncorporacao) {
       errors.dataDeIncorporacao = "O campo 'dataDeIncorporacao' é obrigatório";
@@ -121,6 +126,13 @@ async function putAgente(req, res) {
       if (!dateRegex.test(dataDeIncorporacao)) {
         errors.dataDeIncorporacao =
           "Campo dataDeIncorporacao deve seguir a formatação 'YYYY-MM-DD'";
+      } else {
+        // Validar que não é data futura
+        const data = new Date(dataDeIncorporacao);
+        const hoje = new Date();
+        if (data > hoje) {
+          errors.dataDeIncorporacao = "A data de incorporação não pode ser no futuro";
+        }
       }
     }
     if (!cargo) errors.cargo = "O campo 'cargo' é obrigatório";
@@ -134,7 +146,6 @@ async function putAgente(req, res) {
     }
 
     const agente = {
-      id,
       nome,
       dataDeIncorporacao,
       cargo,
@@ -164,7 +175,6 @@ async function putAgente(req, res) {
     const { nome, dataDeIncorporacao, cargo } = req.body;
     const errors = {};
 
-
     const agente = {};
 
     if (nome) {
@@ -176,7 +186,14 @@ async function putAgente(req, res) {
         errors.dataDeIncorporacao =
           "Campo dataDeIncorporacao deve seguir a formatação 'YYYY-MM-DD'";
       } else {
-        agente.dataDeIncorporacao = dataDeIncorporacao;
+        // Validar que não é data futura
+        const data = new Date(dataDeIncorporacao);
+        const hoje = new Date();
+        if (data > hoje) {
+          errors.dataDeIncorporacao = "A data de incorporação não pode ser no futuro";
+        } else {
+          agente.dataDeIncorporacao = dataDeIncorporacao;
+        }
       }
     }
     if (cargo) {
@@ -220,7 +237,7 @@ async function deleteAgente(req, res) {
   try {
     const { id } = req.params;
 
-    const agente = await removeAgente(id);
+    const agente = await agentesRepository.removeAgente(id);
     if (!agente) {
       return res.status(404).json({
         status: 404,
