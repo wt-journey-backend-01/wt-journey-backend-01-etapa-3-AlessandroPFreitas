@@ -9,8 +9,13 @@ async function findById(id) {
 }
 
 async function newCaso(caso) {
-  const [newId] = await knex("casos").insert(caso).returning("id");
-  return findById(newId);
+  const inserted = await knex("casos").insert(caso).returning("*");
+  if (Array.isArray(inserted) && inserted.length > 0) return inserted[0];
+  // Fallback: buscar pelo maior id recém inserido combinando campos básicos
+  return await knex("casos")
+    .where({ titulo: caso.titulo, descricao: caso.descricao, agente_id: caso.agente_id })
+    .orderBy("id", "desc")
+    .first();
 }
 
 async function attCaso(id, updateCaso) {

@@ -9,8 +9,10 @@ async function findId(id) {
 }
 
 async function createAgente(agente) {
-  await knex("agentes").insert(agente);
-  return agente;
+  const [row] = await knex("agentes").insert(agente).returning("*");
+  // Caso o banco (ou versão) não suporte returning('*'), faz fallback buscando pelo nome
+  if (row) return row;
+  return await knex("agentes").where({ nome: agente.nome }).first();
 }
 
 async function attAgente(id, updateAgente) {
@@ -20,8 +22,9 @@ async function attAgente(id, updateAgente) {
 }
 
 async function partialAgente(id, updateAgente) {
-  const rollBacks = await knex("agentes").where({ id }).update(updateAgente);
-  return rollBacks ? findId(id) : undefined;
+  const count = await knex("agentes").where({ id }).update(updateAgente);
+  if (count === 0) return undefined;
+  return findId(id);
 }
 
 async function removeAgente(id) {

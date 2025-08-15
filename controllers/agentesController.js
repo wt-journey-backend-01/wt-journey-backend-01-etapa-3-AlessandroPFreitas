@@ -95,15 +95,13 @@ async function postAgente(req, res) {
       });
     }
 
-    const agente = {
+    const novoAgente = await agentesRepository.createAgente({
       nome,
       dataDeIncorporacao,
       cargo,
-    };
+    });
 
-   await agentesRepository.createAgente(agente);
-
-    res.status(201).json(agente);
+    res.status(201).json(novoAgente);
   } catch (error) {
     res.status(500).json({
       status: 500,

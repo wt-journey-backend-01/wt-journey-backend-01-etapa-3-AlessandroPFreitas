@@ -17,7 +17,7 @@ async function getAllCasos(req, res) {
           },
         });
       }
-      casos = casos.filter((caso) => caso.agente_id === agente_id);
+      casos = casos.filter((caso) => String(caso.agente_id) === String(agente_id));
     }
 
     if (status) {
@@ -82,18 +82,7 @@ async function getCasoId(req, res) {
       });
     }
 
-    const agente = await agentesRepository.findId(caso.agente_id);
-    if (!agente) {
-      return res.status(404).json({
-        status: 404,
-        message: "Parâmetros inválidos",
-        errors: {
-          agente_id: "O agente não existe!",
-        },
-      });
-    }
-
-    res.status(200).json({...caso, agente});
+  res.status(200).json(caso);
   } catch (error) {
     res.status(500).json({
       status: 500,
@@ -135,15 +124,14 @@ async function postCaso(req, res) {
       });
     }
 
-    const caso = {
+    const casoCriado = await casosRepository.newCaso({
       titulo,
       descricao,
       status,
       agente_id,
-    };
-  await casosRepository.newCaso(caso);
+    });
 
-    res.status(201).json(caso);
+    res.status(201).json(casoCriado);
   } catch (error) {
     res.status(500).json({
       status: 500,
